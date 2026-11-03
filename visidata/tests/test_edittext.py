@@ -1,3 +1,4 @@
+import curses
 import pytest
 import warnings
 from unittest.mock import Mock, patch
@@ -61,3 +62,19 @@ class TestEditText:
             except StopIteration:
                 assert False, "need Enter (or cancel) at end of keypresses"
             assert r == result
+
+    @pytest.mark.parametrize('character', ['L', ' '])
+    def test_integer_printable_keys(self, monkeypatch, mock_screen, character):
+        vd = visidata.vd
+        monkeypatch.setattr(vd, 'pendingKeys', [])
+        monkeypatch.setattr(vd, 'get_wch', Mock(return_value=ord(character)))
+        monkeypatch.setattr(vd, 'drainPendingKeys', Mock(return_value=False))
+        monkeypatch.setattr(curses, 'reset_prog_mode', Mock())
+        monkeypatch.setattr(vd, 'drawRightStatus', Mock())
+
+        key = visidata.VisiData.getkeystroke(vd, mock_screen)
+        widget = visidata.InputWidget()
+        widget.handle_key(key, mock_screen)
+
+        assert key == character
+        assert widget.value == character

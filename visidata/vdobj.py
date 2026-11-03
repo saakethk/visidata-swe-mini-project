@@ -163,6 +163,8 @@ class VisiData(visidata.Extensible):
             if ord(k) >= 32 and ord(k) != 127:  # 127 == DEL or ^?
                 return k
             k = ord(k)
+        elif 32 <= k < 127:
+            return chr(k)
         keyname = curses.keyname(k).decode('utf-8')
         if keyname == '^[':  # Esc/Alt+
             if self.pendingKeys:  # more to come
